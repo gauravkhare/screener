@@ -42,6 +42,7 @@ def get_quote(symbol, series='EQ', instrument=None, expiry=None, option_type=Non
     4. type (CE/PE for options, - for futures
     5. strike (strike price upto two decimal places
     """
+    global d
     if instrument:
         expiry_str = "%02d%s%d" % (
             expiry.day, months[expiry.month][0:3].upper(), expiry.year)
@@ -57,11 +58,14 @@ def get_quote(symbol, series='EQ', instrument=None, expiry=None, option_type=Non
 
     html_soup = BeautifulSoup(res.text, 'lxml')
     hresponseDiv = html_soup.find("div", {"id": "responseDiv"})
-    d = json.loads(hresponseDiv.get_text())
+    try:
+        d = json.loads(hresponseDiv.get_text())
+    except:
+        print("Error >> ", hresponseDiv.get_text())
     #d = json.loads(res.text)['data'][0]
     res = {}
-    for k in d.keys():
-        v = d[k]
+    for k in d['data'][0].keys():
+        v = d['data'][0][k]
         try:
             v_ = None
             if v.find('.') > 0:

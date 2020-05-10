@@ -55,9 +55,9 @@ docs/_build/
 
 # PyBuilder
 target/
-*.csv
 *.png
 zip.zip
 
 # vim
 *.swp
+.idea/
