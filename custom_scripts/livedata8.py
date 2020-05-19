@@ -33,20 +33,23 @@ if os.path.exists(dyn_file_name):
 else:
     append_write = 'w' # make a new file if not
 
+fmt = '{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <12}'
 
 sourceFile = open(dyn_file_name, append_write)
 if append_write == 'w':
-    print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+    print(fmt
       .format('UNDERLYING',
             'TIMESTAMP',
             'OPEN',
             'HIGH',
             'LOW',
             'LAST',
+            'ULAST',
             'VOL',
             'AVGVOL',
             'VOLSGNL',
             'CHOI',
+            '%PREM',
             '%PR',
             '%OI',
             '%VOL',
@@ -94,17 +97,19 @@ currentExpiryDate = sorted(currentExpiryDateSet, reverse=True)[0]
 def fetch_periodic_data(nifty_codes):
     sourceFile = open(dyn_file_name, 'a+')
     source_file_consolidate = open('LiveDataConsolidated.txt', 'w')
-    print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+    print(fmt
           .format('UNDERLYING',
             'TIMESTAMP',
             'OPEN',
             'HIGH',
             'LOW',
             'LAST',
+            'ULAST',
             'VOL',
             'AVGVOL',
             'VOLSGNL',
             'CHOI',
+            '%PREM',
             '%PR',
             '%OI',
             '%VOL',
@@ -135,62 +140,74 @@ def fetch_periodic_data(nifty_codes):
 
 
         try:
-            print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+            print(fmt
                   .format(liveData.get('underlying'),
                           datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'), #liveData.get('lastUpdateTime')
                           liveData.get('openPrice'),
                           liveData.get('highPrice'),
                           liveData.get('lowPrice'),
                           liveData.get('lastPrice'),
+                          liveData.get('underlyingValue'),
                           liveData.get('numberOfContractsTraded'),
                           int(avgVolume),
                           stk_ts_dict[liveData.get('underlying')] if calc_avg_vol_wrt_time(avgVolume) < volume else '',
                           liveData.get('changeinOpenInterest'),
+                          str(round(
+                              float(liveData.get('lastPrice')) - float(liveData.get('underlyingValue')) * 100 / float(liveData.get('lastPrice'))
+                                    , 2)),
                           liveData.get('pChange'),
                           liveData.get('pchangeinOpenInterest'),
                           int(liveData.get('numberOfContractsTraded')*100/int(avgVolume)),
                           abs(int((liveData.get('changeinOpenInterest')*liveData.get('lastPrice'))/1000000))), file=sourceFile)
-            print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+            print(fmt
                   .format(liveData.get('underlying'),
                           datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'),
                           liveData.get('openPrice'),
                           liveData.get('highPrice'),
                           liveData.get('lowPrice'),
                           liveData.get('lastPrice'),
+                          liveData.get('underlyingValue'),
                           liveData.get('numberOfContractsTraded'),
                           int(avgVolume),
                           stk_ts_dict[liveData.get('underlying')] if calc_avg_vol_wrt_time(avgVolume) < volume else '',
                           liveData.get('changeinOpenInterest'),
+                          str(round(
+                              (float(liveData.get('lastPrice')) - float(liveData.get('underlyingValue'))) * 100 / float(
+                                  liveData.get('lastPrice'))
+                              , 2)),
                           liveData.get('pChange'),
                           liveData.get('pchangeinOpenInterest'),
                           int(liveData.get('numberOfContractsTraded') * 100 / int(avgVolume)),
                           abs(int((liveData.get('changeinOpenInterest') * liveData.get('lastPrice')) / 1000000))), file=source_file_consolidate)
 
         except:
-            print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+            print(fmt
                   .format(row['Symbol'],
                           datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S'),
                           "" if liveData.get('openPrice') is None else liveData.get('openPrice'),
                           "" if liveData.get('highPrice') is None else liveData.get('highPrice'),
                           "" if liveData.get('lowPrice') is None else liveData.get('lowPrice'),
                           "" if liveData.get('lastPrice') is None else liveData.get('lastPrice'),
+                          "" if liveData.get('underlyingValue') is None else liveData.get('underlyingValue'),
                           "" if liveData.get('numberOfContractsTraded') is None else liveData.get(
                               'numberOfContractsTraded'),
                           "" if avgVolume is None else int(avgVolume),
                           '',
                           "" if liveData.get('changeinOpenInterest') is None else liveData.get('changeinOpenInterest'),
+                          '',
                           "" if liveData.get('pChange') is None else liveData.get('pChange'),
                           "" if liveData.get('pchangeinOpenInterest') is None else liveData.get(
                               'pchangeinOpenInterest'),
                           '',
                           ''), file=sourceFile)
-            print('{: <10},{: <21},{: <7},{: <8},{: <8},{: <8},{: <8},{: <8},{: <7},{: <8},{: <8},{: <8},{: <8},{: <12}'
+            print(fmt
                   .format(row['Symbol'],
                           datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S'),
                           "" if liveData.get('openPrice') is None else liveData.get('openPrice'),
                           "" if liveData.get('highPrice') is None else liveData.get('highPrice'),
                           "" if liveData.get('lowPrice') is None else liveData.get('lowPrice'),
                           "" if liveData.get('lastPrice') is None else liveData.get('lastPrice'),
+                          "" if liveData.get('underlyingValue') is None else liveData.get('underlyingValue'),
                           "" if liveData.get('pChange') is None else liveData.get('pChange'),
                           "" if liveData.get('pchangeinOpenInterest') is None else liveData.get(
                               'pchangeinOpenInterest'),
@@ -199,6 +216,7 @@ def fetch_periodic_data(nifty_codes):
                           "" if avgVolume is None else int(avgVolume),
                           '',
                           "" if liveData.get('changeinOpenInterest') is None else liveData.get('changeinOpenInterest'),
+                          '',
                           "" if liveData.get('pChange') is None else liveData.get('pChange'),
                           "" if liveData.get('pchangeinOpenInterest') is None else liveData.get(
                               'pchangeinOpenInterest'),
